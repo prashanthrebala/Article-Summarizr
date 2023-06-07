@@ -1,0 +1,14 @@
+version: "3.0"
+
+services:
+  server:
+    build: server
+    ports:
+      - "5012:5012"
+    restart: always
+
+  client:
+    build: client
+    ports:
+      - "4173:4173"
+    restart: always
