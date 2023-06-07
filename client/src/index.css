@@ -6,13 +6,34 @@
 	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 	line-height: 1.5;
 	font-weight: 400;
+	--scrollcolor: #15803d;
 
 	color: rgba(0, 0, 0, 0.87);
-	background-color: #f1f2f6;
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-text-size-adjust: 100%;
+}
+
+/* Firefox */
+* {
+	scrollbar-width: thin;
+	/* scrollbar-color: var(--secondary) var(--primary); */
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+	width: 5px;
+	padding-right: 10px;
+}
+
+*::-webkit-scrollbar-track {
+	border-radius: 15px;
+}
+
+*::-webkit-scrollbar-thumb {
+	background-color: var(--scrollcolor);
+	border-radius: 14px;
 }
