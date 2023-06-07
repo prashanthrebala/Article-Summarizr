@@ -1,12 +1,20 @@
 const express = require("express");
 const axios = require("axios");
+const cors = require("cors");
 const app = express();
 
 require("dotenv").config();
 
 const PORT_NUMBER = process.env.SERVER_PORT || 9000;
 
+app.use(
+	cors({
+		origin: process.env.CLIENT_SITE_URL,
+	})
+);
+
 app.get("/summarize", async (req, res) => {
+	console.log("we have a request errybody!");
 	const articleLink = req.query.articleLink;
 	const numberOfParagraphs = req.query.numberOfParagraphs || 3;
 	console.log(articleLink);
