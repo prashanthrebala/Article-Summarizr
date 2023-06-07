@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { SUMMARIZR_BASE_URL } from "../constants/constants";
 import background from "../assets/haikei-blob.png";
 
 export const Summarizr = () => {
@@ -8,9 +9,8 @@ export const Summarizr = () => {
 	);
 	const handleKeyPress = async (event) => {
 		if (event.key === "Enter") {
-			// const url = urlInputRef.current.value;
 			try {
-				const response = await fetch("http://192.168.1.129:5012/summarize", {
+				const response = await fetch(`${SUMMARIZR_BASE_URL}/summarize`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
