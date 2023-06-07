@@ -1,4 +1,4 @@
-# Use a Node 16 base image
+# Use a Node 19 base image
 FROM node:19-alpine
 
 # Set the working directory to /app inside the container
@@ -8,16 +8,19 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy only necessary app files
-COPY dist ./dist
+COPY . .
 
 # Set the env to "production"
 ENV NODE_ENV production
 
-# Expose the port on which the app will be running
+# Build the app
+RUN npm run build
+
+# Expose the port on which the app will be running (change if necessary)
 EXPOSE 5011
 
-# Start the app
-CMD ["node", "dist/index.js"]
+# Start the app with `npm run preview`
+CMD ["npm", "run", "preview"]
