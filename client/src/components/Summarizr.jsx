@@ -1,23 +1,31 @@
 import { useRef, useState } from "react";
 import { SUMMARIZR_BASE_URL } from "../constants/constants";
+import { TripleMaze } from "react-spinner-animated";
+import axios from "axios";
 import background from "../assets/haikei-blob.png";
+import "react-spinner-animated/dist/index.css";
 
 export const Summarizr = () => {
 	const urlInputRef = useRef();
 	const [summarizedData, setSummarizedData] = useState(
 		"<p>Your summarized article will appear here...<p>"
 	);
+	const [isLoading, setIsLoading] = useState(false);
 	const handleKeyPress = async (event) => {
 		if (event.key === "Enter") {
 			try {
-				const response = await fetch(`${SUMMARIZR_BASE_URL}/summarize`, {
-					method: "GET",
+				setIsLoading(true);
+				const response = await axios.get(`${SUMMARIZR_BASE_URL}/summarize`, {
+					params: {
+						articleLink: urlInputRef.current.value,
+					},
 					headers: {
 						"Content-Type": "application/json",
 					},
 				});
-				const data = await response.json();
-				console.log("API response:", data);
+				const data = response.data;
+				console.log("API response:", response.data);
+				setIsLoading(false);
 				setSummarizedData(data.summary.replace(/\n/g, "<br>"));
 			} catch (error) {
 				console.error("API error:", error);
@@ -56,13 +64,23 @@ export const Summarizr = () => {
 					{`This is a website that uses a RapidAPI that extracts news/article body from a URL and uses GPT to summarize the article content.`}
 				</div>
 			</div>
-			<div className="w-full md:w-1/2 text-center h-full md:min-h-screen flex justify-center md:items-center py-4 md:py-16">
+			<div className="w-full md:w-1/2 text-center h-full md:min-h-screen flex justify-center items-center py-4 md:py-16">
 				<div
-					className="w-11/12 md:w-5/6 text-justify md:overflow-y-auto md:h-[80vh] bg-green-900 rounded-md p-2 md:p-8"
-					dangerouslySetInnerHTML={{
-						__html: summarizedData,
-					}}
-				></div>
+					className={`w-11/12 md:w-5/6 text-justify md:overflow-y-auto md:h-[80vh] bg-green-900 rounded-md p-2 md:p-8 ${
+						isLoading ? "flex items-center" : ""
+					}`}
+				>
+					{isLoading ? (
+						<TripleMaze
+							text={
+								"Please wait while we fetch the summarized article. This may take upto a minute"
+							}
+							center={false}
+						/>
+					) : (
+						<div dangerouslySetInnerHTML={{ __html: summarizedData }} />
+					)}
+				</div>
 			</div>
 		</div>
 	);
