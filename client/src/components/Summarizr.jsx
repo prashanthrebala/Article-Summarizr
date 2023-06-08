@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { SUMMARIZR_BASE_URL } from "../constants/constants";
+import { MdError } from "react-icons/md";
 import { TripleMaze } from "react-spinner-animated";
 import axios from "axios";
 import background from "../assets/haikei-blob.png";
@@ -11,10 +12,12 @@ export const Summarizr = () => {
 		"<p>Your summarized article will appear here...<p>"
 	);
 	const [isLoading, setIsLoading] = useState(false);
+	const [errorMessage, setErrorMessage] = useState(null);
 	const handleKeyPress = async (event) => {
 		if (event.key === "Enter") {
 			try {
 				setIsLoading(true);
+				setErrorMessage(null);
 				const response = await axios.get(`${SUMMARIZR_BASE_URL}/summarize`, {
 					params: {
 						articleLink: urlInputRef.current.value,
@@ -25,10 +28,12 @@ export const Summarizr = () => {
 				});
 				const data = response.data;
 				console.log("API response:", response.data);
-				setIsLoading(false);
 				setSummarizedData(data.summary.replace(/\n/g, "<br>"));
 			} catch (error) {
 				console.error("API error:", error);
+				setErrorMessage("There was an error fetching your article");
+			} finally {
+				setIsLoading(false);
 			}
 		}
 	};
@@ -67,17 +72,24 @@ export const Summarizr = () => {
 			<div className="w-full md:w-1/2 text-center h-full md:min-h-screen flex justify-center items-center py-4 md:py-16">
 				<div
 					className={`w-11/12 md:w-5/6 text-justify md:overflow-y-auto md:h-[80vh] bg-green-900 rounded-md p-2 md:p-8 ${
-						isLoading ? "flex items-center" : ""
+						isLoading || errorMessage ? "flex items-center justify-center" : ""
 					}`}
 				>
-					{isLoading ? (
+					{isLoading && (
 						<TripleMaze
 							text={
 								"Please wait while we fetch the summarized article. This may take upto a minute"
 							}
 							center={false}
 						/>
-					) : (
+					)}
+					{errorMessage && (
+						<div className="flex flex-col space-y-4 items-center">
+							<MdError size={70} />
+							<div>{errorMessage}</div>
+						</div>
+					)}
+					{!isLoading && !errorMessage && (
 						<div dangerouslySetInnerHTML={{ __html: summarizedData }} />
 					)}
 				</div>
