@@ -15,5 +15,7 @@ RUN npm ci --omit=dev
 # Bundle app source
 COPY . .
 
+ENV ENVIRONMENT=production
+
 EXPOSE 5012
 CMD [ "node", "index.js" ]
