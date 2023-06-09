@@ -3,7 +3,6 @@ import { SUMMARIZR_BASE_URL } from "../constants/constants";
 import { MdError } from "react-icons/md";
 import { TripleMaze } from "react-spinner-animated";
 import axios from "axios";
-// import background from "../assets/haikei-blob.png";
 import background from "../assets/summarizr-bg.png";
 import "react-spinner-animated/dist/index.css";
 
@@ -28,7 +27,7 @@ export const Summarizr = () => {
 					},
 				});
 				const data = response.data;
-				console.log("API response:", response.data);
+				console.log("response received");
 				setSummarizedData(data.summary.replace(/\n/g, "<br>"));
 			} catch (error) {
 				console.error("API error:", error);
@@ -66,13 +65,13 @@ export const Summarizr = () => {
 					className="w-5/6 rounded-lg p-2 outline-0 h-14 border-2 border-neutral-600 bg-slate-100 text-neutral-800"
 					placeholder="Enter a URL here"
 				/>
-				<div className="w-5/6 text-sm text-center">
-					{`This is a website that uses a RapidAPI that extracts news/article body from a URL and uses GPT to summarize the article content.`}
+				<div className="w-5/6 text-sm text-justify md:text-center">
+					{`This website uses a RapidAPI that extracts news/article body from a URL and uses GPT to summarize the article content.`}
 				</div>
 			</div>
 			<div className="w-full md:w-1/2 text-center text-neutral-950 h-full md:min-h-screen flex justify-center items-center py-4 md:py-16">
 				<div
-					className={`w-11/12 md:w-5/6 text-justify md:overflow-y-auto md:h-[80vh] bg-gray-300 rounded-md p-2 md:p-8 ${
+					className={`w-11/12 md:w-5/6 text-slate-200 text-justify md:overflow-y-auto md:h-[80vh] outline outline-1 outline-gray-600 rounded-md p-2 md:p-8 ${
 						isLoading || errorMessage ? "flex items-center justify-center" : ""
 					}`}
 				>
