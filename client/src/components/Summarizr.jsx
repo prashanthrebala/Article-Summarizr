@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { SUMMARIZR_BASE_URL } from "../constants/constants";
+import { SUMMARIZR_BASE_URL } from "../config";
 import { MdError } from "react-icons/md";
 import { TripleMaze } from "react-spinner-animated";
 import axios from "axios";
