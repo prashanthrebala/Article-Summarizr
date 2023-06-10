@@ -8,17 +8,23 @@ require("dotenv").config();
 
 const DEBUG_MODE = process.env.ENVIRONMENT === "development";
 const PORT_NUMBER = process.env.SERVER_PORT || 9000;
+const allowedOrigin = process.env.CLIENT_SITE_URL;
 
-app.use(
-	cors({
-		origin: process.env.CLIENT_SITE_URL,
-	})
-);
+app.use(cors({ origin: allowedOrigin }));
+
+app.use((req, res, next) => {
+	console.log("Allowed origins", allowedOrigin);
+	console.log("Request origin", req.headers.origin);
+	if (req.headers.origin !== allowedOrigin) {
+		return res.status(403).json({ error: "Forbidden" });
+	}
+	next();
+});
 
 app.get("/summarize", async (req, res) => {
 	const articleLink = req.query.articleLink;
 	const numberOfParagraphs = req.query.numberOfParagraphs || 3;
-	console.log(`request received for ${articleLink}`);
+	console.log(`Request received for ${articleLink}`);
 
 	const options = {
 		method: "GET",
@@ -35,25 +41,21 @@ app.get("/summarize", async (req, res) => {
 
 	try {
 		const response = DEBUG_MODE ? dummyData : await axios.request(options);
-		console.log("api fetch succeeded");
+		console.log("API fetch succeeded");
 		res.json(response.data);
 	} catch (error) {
 		console.error(error);
 		if (error.response) {
-			res.status(error.response.status).json({
-				error: error.response.data,
-			});
+			res.status(error.response.status).json({ error: error.response.data });
 		} else if (error.request) {
 			res.sendStatus(503);
 		} else {
-			res.status(500).json({
-				error: "Internal Server Error",
-			});
+			res.status(500).json({ error: "Internal Server Error" });
 		}
 	}
 });
 
 app.listen(PORT_NUMBER, () => {
 	console.log(`Starting Summarizr server in ${process.env.ENVIRONMENT} mode`);
-	console.log(`listening on port ${PORT_NUMBER}`);
+	console.log(`Listening on port ${PORT_NUMBER}`);
 });
