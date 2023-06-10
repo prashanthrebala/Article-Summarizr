@@ -4,11 +4,11 @@ services:
   server:
     build: server
     ports:
-      - "5012:5012"
+      - "35012:5012"
     restart: always
 
   client:
     build: client
     ports:
-      - "4173:4173"
+      - "35011:5011"
     restart: always
