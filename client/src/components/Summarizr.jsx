@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { SUMMARIZR_BASE_URL } from "../config";
 import { MdError } from "react-icons/md";
+import { IoSend } from "react-icons/io5";
 import { TripleMaze } from "react-spinner-animated";
 import axios from "axios";
 import background from "../assets/summarizr-bg.png";
@@ -13,29 +14,40 @@ export const Summarizr = () => {
 	);
 	const [isLoading, setIsLoading] = useState(false);
 	const [errorMessage, setErrorMessage] = useState(null);
+
+	const handleSubmit = async () => {
+		const articleLink = urlInputRef.current.value;
+		if (!isValidWebsite(articleLink)) {
+			alert("Enter a valid URL!");
+			return;
+		}
+
+		try {
+			setIsLoading(true);
+			setErrorMessage(null);
+			const response = await axios.get(`${SUMMARIZR_BASE_URL}/summarize`, {
+				params: {
+					articleLink,
+				},
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+			const data = response.data;
+			console.log("response received");
+			setSummarizedData(data.summary.replace(/\n/g, "<br>"));
+		} catch (error) {
+			console.error("API error:", error);
+			setErrorMessage("There was an error fetching your article");
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	const handleKeyPress = async (event) => {
 		if (event.key === "Enter") {
+			handleSubmit();
 			event.target.blur();
-			try {
-				setIsLoading(true);
-				setErrorMessage(null);
-				const response = await axios.get(`${SUMMARIZR_BASE_URL}/summarize`, {
-					params: {
-						articleLink: urlInputRef.current.value,
-					},
-					headers: {
-						"Content-Type": "application/json",
-					},
-				});
-				const data = response.data;
-				console.log("response received");
-				setSummarizedData(data.summary.replace(/\n/g, "<br>"));
-			} catch (error) {
-				console.error("API error:", error);
-				setErrorMessage("There was an error fetching your article");
-			} finally {
-				setIsLoading(false);
-			}
 		}
 	};
 
@@ -60,12 +72,24 @@ export const Summarizr = () => {
 				>
 					Article Summarizr
 				</div>
-				<input
-					ref={urlInputRef}
-					onKeyDown={handleKeyPress}
-					className="w-5/6 rounded-lg p-2 outline-0 h-14 border-2 border-neutral-600 bg-slate-100 text-neutral-800"
-					placeholder="Enter a URL here"
-				/>
+				<div className="w-5/6 flex justify-center gap-x-1">
+					<input
+						ref={urlInputRef}
+						onKeyDown={handleKeyPress}
+						className="w-5/6 rounded-lg p-2 outline-0 h-12 md:h-14 border-2 border-neutral-600 bg-slate-100 text-neutral-800"
+						placeholder="Enter a URL here"
+					/>
+					<button
+						type="button"
+						disabled={isLoading}
+						onClick={handleSubmit}
+						className={`${
+							isLoading ? "bg-slate-500" : "bg-green-700"
+						} w-14 rounded-lg flex justify-center items-center`}
+					>
+						<IoSend size={24} />
+					</button>
+				</div>
 				<div className="w-5/6 text-sm text-justify md:text-center">
 					{`This website uses a RapidAPI that extracts news/article body from a URL and uses GPT to summarize the article content.`}
 				</div>
@@ -100,4 +124,10 @@ export const Summarizr = () => {
 			</div>
 		</div>
 	);
+};
+
+const isValidWebsite = (str) => {
+	const websiteRegex =
+		/^(https?:\/\/)?([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(\/[^\s]*)?$/;
+	return websiteRegex.test(str);
 };
