@@ -8,7 +8,7 @@ module.exports = {
 		: process.env.PROD_CLIENT_SITE_URL,
 	DEV_MODE,
 	ENVIRONMENT: process.env.ENVIRONMENT,
-	MONGO_URL: process.env.MONGO_URL,
+	MONGO_URL: DEV_MODE ? process.env.MONGO_DEV_URL : process.env.MONGO_PROD_URL,
 	RAPID_API_BASE_URL: process.env.RAPID_API_BASE_URL,
 	RAPID_API_HOST: process.env.RAPID_API_HOST,
 	RAPID_API_KEY: process.env.RAPID_API_KEY,
