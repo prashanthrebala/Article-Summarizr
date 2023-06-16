@@ -1,21 +1,28 @@
+const connectToDB = require("./mongodb/connect.js");
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const app = express();
 const { dummyData } = require("./dummyData");
+const summariesRouter = require("./routes/summaries.js");
+const {
+	ALLOWED_ORIGIN,
+	DEV_MODE,
+	ENVIRONMENT,
+	MONGO_URL,
+	RAPID_API_BASE_URL,
+	RAPID_API_KEY,
+	RAPID_API_HOST,
+	SERVER_API_KEY,
+	SERVER_PORT,
+} = require("./config.js");
 
-require("dotenv").config();
-
-const DEBUG_MODE = process.env.ENVIRONMENT === "development";
-const PORT_NUMBER = process.env.SERVER_PORT || 9000;
-const allowedOrigin = process.env.CLIENT_SITE_URL;
-
-app.use(cors({ origin: allowedOrigin }));
-
+app.use("/summaries", summariesRouter);
+app.use(cors({ origin: ALLOWED_ORIGIN }));
 app.use((req, res, next) => {
-	console.log("Allowed origins", allowedOrigin);
+	console.log("Allowed origins", ALLOWED_ORIGIN);
 	console.log("Request origin", req.headers.origin);
-	if (req.headers.origin !== allowedOrigin) {
+	if (req.headers.origin !== ALLOWED_ORIGIN) {
 		return res.status(403).json({ error: "Forbidden" });
 	}
 	next();
@@ -28,20 +35,33 @@ app.get("/summarize", async (req, res) => {
 
 	const options = {
 		method: "GET",
-		url: `${process.env.RAPID_API_URL}/summarize`,
+		url: `${RAPID_API_BASE_URL}/summarize`,
 		params: {
 			url: articleLink,
 			length: numberOfParagraphs,
 		},
 		headers: {
-			"X-RapidAPI-Key": process.env.RAPID_API_KEY,
-			"X-RapidAPI-Host": process.env.RAPID_API_HOST,
+			"X-RapidAPI-Key": RAPID_API_KEY,
+			"X-RapidAPI-Host": RAPID_API_HOST,
 		},
 	};
 
 	try {
-		const response = DEBUG_MODE ? dummyData : await axios.request(options);
+		const response = DEV_MODE ? dummyData : await axios.request(options);
 		console.log("API fetch succeeded");
+
+		const updateSummaryListOptions = {
+			method: "POST",
+			url: `http://localhost:${SERVER_PORT}/summaries`,
+			data: {
+				urlLink: articleLink,
+				summary: response.data.summary,
+				serverApiKey: SERVER_API_KEY,
+			},
+		};
+
+		axios.request(updateSummaryListOptions); // Send the POST request asynchronously
+
 		res.json(response.data);
 	} catch (error) {
 		console.error(error);
@@ -55,7 +75,12 @@ app.get("/summarize", async (req, res) => {
 	}
 });
 
-app.listen(PORT_NUMBER, () => {
-	console.log(`Starting Summarizr server in ${process.env.ENVIRONMENT} mode`);
-	console.log(`Listening on port ${PORT_NUMBER}`);
+app.listen(SERVER_PORT, async () => {
+	try {
+		await connectToDB(MONGO_URL);
+		console.log(`Starting Summarizr server in ${ENVIRONMENT} mode`);
+		console.log(`Listening on port ${SERVER_PORT}`);
+	} catch (error) {
+		console.log(`error starting the server: ${error}`);
+	}
 });
