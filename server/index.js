@@ -1,3 +1,4 @@
+const connectToDB = require("./mongodb/connect.js");
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
@@ -5,17 +6,18 @@ const app = express();
 const { dummyData } = require("./dummyData");
 
 require("dotenv").config();
+const summariesRouter = require("./routes/summaries.js");
 
 const DEBUG_MODE = process.env.ENVIRONMENT === "development";
 const PORT_NUMBER = process.env.SERVER_PORT || 9000;
 const allowedOrigin = process.env.CLIENT_SITE_URL;
 
+app.use("/summaries", summariesRouter);
 app.use(cors({ origin: allowedOrigin }));
-
 app.use((req, res, next) => {
 	console.log("Allowed origins", allowedOrigin);
 	console.log("Request origin", req.headers.origin);
-	if (req.headers.origin !== allowedOrigin) {
+	if (req.headers.origin !== allowedOrigin && !DEBUG_MODE) {
 		return res.status(403).json({ error: "Forbidden" });
 	}
 	next();
@@ -42,6 +44,19 @@ app.get("/summarize", async (req, res) => {
 	try {
 		const response = DEBUG_MODE ? dummyData : await axios.request(options);
 		console.log("API fetch succeeded");
+
+		const updateSummaryListOptions = {
+			method: "POST",
+			url: `http://localhost:${PORT_NUMBER}/summaries`,
+			data: {
+				urlLink: articleLink,
+				summary: response.data.summary,
+				serverApiKey: process.env.SERVER_API_KEY,
+			},
+		};
+
+		axios.request(updateSummaryListOptions); // Send the POST request asynchronously
+
 		res.json(response.data);
 	} catch (error) {
 		console.error(error);
@@ -56,6 +71,11 @@ app.get("/summarize", async (req, res) => {
 });
 
 app.listen(PORT_NUMBER, () => {
-	console.log(`Starting Summarizr server in ${process.env.ENVIRONMENT} mode`);
-	console.log(`Listening on port ${PORT_NUMBER}`);
+	try {
+		connectToDB(process.env.MONGO_URL);
+		console.log(`Starting Summarizr server in ${process.env.ENVIRONMENT} mode`);
+		console.log(`Listening on port ${PORT_NUMBER}`);
+	} catch (error) {
+		console.log(`error starting the server: ${error}`);
+	}
 });
