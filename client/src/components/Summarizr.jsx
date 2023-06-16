@@ -15,6 +15,7 @@ export const Summarizr = () => {
 	const [errorMessage, setErrorMessage] = useState(null);
 	const handleKeyPress = async (event) => {
 		if (event.key === "Enter") {
+			event.target.blur();
 			try {
 				setIsLoading(true);
 				setErrorMessage(null);
