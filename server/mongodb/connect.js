@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
 
-const connectToDB = (mongoURL) => {
-	mongoose.set("strictQuery", true);
-	mongoose
+const connectToDB = async (mongoURL) => {
+	await mongoose
 		.connect(mongoURL)
 		.then(() => console.log(`successful connection to MongoDB`))
 		.catch((err) => {

@@ -75,9 +75,9 @@ app.get("/summarize", async (req, res) => {
 	}
 });
 
-app.listen(SERVER_PORT, () => {
+app.listen(SERVER_PORT, async () => {
 	try {
-		connectToDB(MONGO_URL);
+		await connectToDB(MONGO_URL);
 		console.log(`Starting Summarizr server in ${ENVIRONMENT} mode`);
 		console.log(`Listening on port ${SERVER_PORT}`);
 	} catch (error) {
