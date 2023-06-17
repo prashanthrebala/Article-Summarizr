@@ -15,7 +15,7 @@ const Hero = ({
 	const urlInputRef = useRef();
 
 	const handleSubmit = async () => {
-		const articleLink = urlInputRef.current.value;
+		const articleLink = urlInputRef.current?.value;
 		if (!isValidWebsite(articleLink)) {
 			alert("Enter a valid URL!");
 			return;
@@ -62,7 +62,7 @@ const Hero = ({
 				Article Summarizr
 			</div>
 			<div className="w-5/6 flex justify-center gap-x-1">
-				<UrlInput inputRef={urlInputRef} onKeyDown={handleKeyPress} />
+				<UrlInput inputElementRef={urlInputRef} onKeyDown={handleKeyPress} />
 				<SubmitButton isLoading={isLoading} handleSubmit={handleSubmit} />
 			</div>
 			<div className="w-5/6 text-sm text-justify md:text-center">
