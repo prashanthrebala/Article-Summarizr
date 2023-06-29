@@ -19,8 +19,12 @@ ENV NODE_ENV production
 # Build the app
 RUN npm run build
 
+FROM nginx:latest
+COPY --from=0 /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
+
 # Expose the port on which the app will be running (change if necessary)
 EXPOSE 5011
 
 # Start the app with `npm run preview`
-CMD ["npm", "run", "preview"]
+CMD ["nginx", "-g", "daemon off;"]
