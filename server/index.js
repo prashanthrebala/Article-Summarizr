@@ -3,10 +3,7 @@ const { createClient } = require("redis");
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
-const app = express();
-const redisClient = createClient();
-const { dummyData } = require("./dummyData");
-const summariesRouter = require("./routes/summaries.js");
+
 const {
 	ALLOWED_ORIGIN,
 	DEV_MODE,
@@ -19,9 +16,14 @@ const {
 	SERVER_PORT,
 } = require("./config.js");
 
-app.use("/summaries", summariesRouter);
+const app = express();
+const redisClient = createClient();
+const { dummyData } = require("./dummyData");
+const summariesRouter = require("./routes/summaries.js");
+
 app.use(cors({ origin: ALLOWED_ORIGIN }));
-app.use((req, res, next) => {
+
+app.use(async (req, res, next) => {
 	console.log("Allowed origins", ALLOWED_ORIGIN);
 	console.log("Request origin", req.headers.origin);
 	if (req.headers.origin !== ALLOWED_ORIGIN) {
@@ -39,8 +41,8 @@ app.use(async (req, res, next) => {
 			return res.status(429).json({
 				error:
 					"Too Many Requests. Since this is a free version, \
-						this API is limited to 2 request per IP address and \
-						3 requests per day overall. Please try again tomorrow!",
+				this API is limited to 2 requests per IP address and \
+				3 requests per day overall. Please try again tomorrow!",
 			});
 		}
 		next();
@@ -100,6 +102,13 @@ app.get("/summarize", async (req, res, next) => {
 			res.status(500).json({ error: "Internal Server Error" });
 		}
 	}
+});
+
+app.use("/summaries", summariesRouter);
+
+app.use((err, req, res, next) => {
+	console.error("Error occurred:", err);
+	res.status(500).json({ error: "Internal Server Error" });
 });
 
 app.listen(SERVER_PORT, async () => {
