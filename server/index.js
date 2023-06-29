@@ -1,8 +1,10 @@
 const connectToDB = require("./mongodb/connect.js");
+const { createClient } = require("redis");
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const app = express();
+const redisClient = createClient();
 const { dummyData } = require("./dummyData");
 const summariesRouter = require("./routes/summaries.js");
 const {
@@ -28,7 +30,32 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.get("/summarize", async (req, res) => {
+app.use(async (req, res, next) => {
+	try {
+		const value = await redisClient.get(req.socket.remoteAddress);
+		const count = value !== null ? parseInt(value) + 1 : 1;
+		redisClient.set(req.socket.remoteAddress, count);
+		if (count >= 3) {
+			return res.status(429).json({
+				error:
+					"Too Many Requests. Since this is a free version, \
+						this API is limited to 2 request per IP address and \
+						3 requests per day overall. Please try again tomorrow!",
+			});
+		}
+		next();
+	} catch (error) {
+		console.error("Error checking key existence in Redis:", error);
+		next(error);
+	}
+});
+
+app.use((err, req, res, next) => {
+	console.error("Error occurred:", err);
+	res.status(500).json({ error: "Internal Server Error" });
+});
+
+app.get("/summarize", async (req, res, next) => {
 	const articleLink = req.query.articleLink;
 	const numberOfParagraphs = req.query.numberOfParagraphs || 3;
 	console.log(`Request received for ${articleLink}`);
@@ -78,6 +105,7 @@ app.get("/summarize", async (req, res) => {
 app.listen(SERVER_PORT, async () => {
 	try {
 		await connectToDB(MONGO_URL);
+		await redisClient.connect();
 		console.log(`Starting Summarizr server in ${ENVIRONMENT} mode`);
 		console.log(`Listening on port ${SERVER_PORT}`);
 	} catch (error) {
