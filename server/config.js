@@ -14,4 +14,6 @@ module.exports = {
 	RAPID_API_KEY: process.env.RAPID_API_KEY,
 	SERVER_API_KEY: process.env.SERVER_API_KEY,
 	SERVER_PORT: process.env.SERVER_PORT || 9000,
+	REDIS_HOST: process.env.REDIS_HOST,
+	REDIS_PORT: process.env.REDIS_PORT,
 };
