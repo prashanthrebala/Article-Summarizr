@@ -21,6 +21,7 @@ const redisClient = createClient();
 const { dummyData } = require("./dummyData");
 const summariesRouter = require("./routes/summaries.js");
 
+app.use("/summaries", summariesRouter);
 app.use(cors({ origin: ALLOWED_ORIGIN }));
 
 app.use(async (req, res, next) => {
@@ -103,8 +104,6 @@ app.get("/summarize", async (req, res, next) => {
 		}
 	}
 });
-
-app.use("/summaries", summariesRouter);
 
 app.use((err, req, res, next) => {
 	console.error("Error occurred:", err);
