@@ -5,7 +5,7 @@ const axios = require("axios");
 const cors = require("cors");
 
 const {
-	ALLOWED_ORIGIN,
+	ALLOWED_ORIGINS,
 	DEV_MODE,
 	ENVIRONMENT,
 	MONGO_URL,
@@ -39,12 +39,11 @@ const getTimeTillEOD = function () {
 };
 
 app.use("/summaries", summariesRouter);
-app.use(cors({ origin: ALLOWED_ORIGIN }));
+app.use(cors({ origin: ALLOWED_ORIGINS }));
 
 app.use(async (req, res, next) => {
-	console.log("Allowed origins", ALLOWED_ORIGIN);
 	console.log("Request origin", req.headers.origin);
-	if (req.headers.origin !== ALLOWED_ORIGIN) {
+	if (!ALLOWED_ORIGINS.includes(req.headers.origin)) {
 		return res.status(403).json({ error: "Forbidden" });
 	}
 	next();

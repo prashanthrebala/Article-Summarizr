@@ -3,9 +3,10 @@ require("dotenv").config();
 const DEV_MODE = process.env.ENVIRONMENT === "development";
 
 module.exports = {
-	ALLOWED_ORIGIN: DEV_MODE
+	ALLOWED_ORIGINS: (DEV_MODE
 		? process.env.LOCAL_CLIENT_SITE_URL
-		: process.env.PROD_CLIENT_SITE_URL,
+		: process.env.PROD_CLIENT_SITE_URL
+	).split(","),
 	DEV_MODE,
 	ENVIRONMENT: process.env.ENVIRONMENT,
 	MONGO_URL: DEV_MODE ? process.env.MONGO_DEV_URL : process.env.MONGO_PROD_URL,
