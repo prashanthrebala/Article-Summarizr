@@ -2,7 +2,7 @@
 
 <p align="justify">The Article Summarizr web app is designed to simplify the process of summarizing articles without the need to manually copy and paste the content into ChatGPT. Powered by the <a href="https://rapidapi.com/restyler/api/article-extractor-and-summarizer">Article Extractor and Summarizer RapidAPI</a>, this tool allows you to effortlessly summarize articles by simply pasting the article or the document link directly on the website. Within a few minutes, you will receive a concise summary of your article.</p>
 
-Website Link: `yet to be deployed`
+Website Link: [https://summarizr.rusherrg.tech](https://summarizr.rusherrg.tech)
 
 **Upcoming Features**
 
